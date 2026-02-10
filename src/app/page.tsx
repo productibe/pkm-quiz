@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   questions,
   typeResults,
@@ -11,6 +11,30 @@ import {
 } from "@/data/questions";
 import { calculateResult, type QuizResult } from "@/lib/scoring";
 import RadarChart from "@/components/RadarChart";
+
+/* ─── URL Encoding ─── */
+function encodeAnswers(answers: Choice[]): string {
+  return answers
+    .map((choice, i) => {
+      const q = questions[i];
+      const idx = q.choices.indexOf(choice);
+      return String.fromCharCode(97 + idx); // a, b, c, d
+    })
+    .join("");
+}
+
+function decodeAnswers(code: string): Choice[] | null {
+  if (code.length !== questions.length) return null;
+  try {
+    return code.split("").map((ch, i) => {
+      const idx = ch.charCodeAt(0) - 97;
+      if (idx < 0 || idx >= questions[i].choices.length) return null;
+      return questions[i].choices[idx];
+    }).filter((c): c is Choice => c !== null);
+  } catch {
+    return null;
+  }
+}
 
 /* ─── Intro Screen ─── */
 function IntroScreen({ onStart }: { onStart: () => void }) {
@@ -233,9 +257,11 @@ function getActionPlan(result: QuizResult): string[] {
 /* ─── Result Screen ─── */
 function ResultScreen({
   result,
+  answerCode,
   onRestart,
 }: {
   result: QuizResult;
+  answerCode: string;
   onRestart: () => void;
 }) {
   const primary = typeResults[result.primaryType];
@@ -248,6 +274,13 @@ function ResultScreen({
 
   const diagnosis = getDiagnosis(result);
   const actions = getActionPlan(result);
+
+  // Set URL with answer code
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("r", answerCode);
+    window.history.replaceState({}, "", url.toString());
+  }, [answerCode]);
 
   const radarData = [
     {
@@ -265,7 +298,14 @@ function ResultScreen({
     { label: "성장 단계", value: result.radarScores.bottleneck, color: "#f59e0b" },
   ];
 
-  const shareText = `나의 기록 DNA: ${primary.emoji} ${primary.name}${secondary ? ` × ${secondary.emoji} ${secondary.name}` : ""}\nPKM 성숙도: Lv.${result.maturityLevel} ${result.maturityLabel}\nAI 활용도: Lv.${result.aiLevel} ${result.aiLabel}\n\n"${primary.quote}"\n\n당신의 기록 DNA는? 👉`;
+  const getShareUrl = () => {
+    if (typeof window === "undefined") return "";
+    const url = new URL(window.location.href);
+    url.searchParams.set("r", answerCode);
+    return url.toString();
+  };
+
+  const shareText = `나의 기록 DNA: ${primary.emoji} ${primary.name}${secondary ? ` × ${secondary.emoji} ${secondary.name}` : ""}\nPKM 성숙도: Lv.${result.maturityLevel} ${result.maturityLabel}\nAI 활용도: Lv.${result.aiLevel} ${result.aiLabel}\n\n"${primary.quote}"\n\n당신의 기록 DNA는? 👉 ${getShareUrl()}`;
 
   const handleCopy = async () => {
     try {
@@ -459,12 +499,32 @@ export default function Home() {
   const [screen, setScreen] = useState<"intro" | "quiz" | "result">("intro");
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<Choice[]>([]);
+  const [answerCode, setAnswerCode] = useState("");
   const [result, setResult] = useState<QuizResult | null>(null);
 
+  // Check URL for shared result on load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("r");
+    if (code) {
+      const decoded = decodeAnswers(code);
+      if (decoded && decoded.length === questions.length) {
+        const r = calculateResult(decoded);
+        setAnswers(decoded);
+        setAnswerCode(code);
+        setResult(r);
+        setScreen("result");
+      }
+    }
+  }, []);
+
   const handleStart = () => {
+    // Clear URL params
+    window.history.replaceState({}, "", window.location.pathname);
     setScreen("quiz");
     setCurrentQ(0);
     setAnswers([]);
+    setAnswerCode("");
     setResult(null);
   };
 
@@ -476,7 +536,9 @@ export default function Home() {
       if (currentQ + 1 < questions.length) {
         setCurrentQ(currentQ + 1);
       } else {
+        const code = encodeAnswers(newAnswers);
         const r = calculateResult(newAnswers);
+        setAnswerCode(code);
         setResult(r);
         setScreen("result");
       }
@@ -490,7 +552,7 @@ export default function Home() {
       <QuestionScreen questionIndex={currentQ} onAnswer={handleAnswer} />
     );
   if (result)
-    return <ResultScreen result={result} onRestart={handleStart} />;
+    return <ResultScreen result={result} answerCode={answerCode} onRestart={handleStart} />;
 
   return null;
 }
