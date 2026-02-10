@@ -273,6 +273,28 @@ function ResultScreen({
   const output = outputResults[result.outputType];
   const bn = bottleneckResults[result.bottleneck];
   const [copied, setCopied] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
+  const [gateName, setGateName] = useState("");
+  const [gateEmail, setGateEmail] = useState("");
+
+  const handleUnlock = () => {
+    if (!gateName.trim() || !gateEmail.trim() || !gateEmail.includes("@")) return;
+    // Store lead data in localStorage + URL param for retrieval
+    const leadData = {
+      name: gateName,
+      email: gateEmail,
+      type: `${primary.name}${secondary ? ` × ${secondary.name}` : ""}`,
+      maturityLevel: result.maturityLevel,
+      aiLevel: result.aiLevel,
+      timestamp: new Date().toISOString(),
+      answerCode,
+    };
+    // Save to localStorage for now (Tally/webhook integration later)
+    const leads = JSON.parse(localStorage.getItem("pkm-quiz-leads") || "[]");
+    leads.push(leadData);
+    localStorage.setItem("pkm-quiz-leads", JSON.stringify(leads));
+    setUnlocked(true);
+  };
 
   const diagnosis = getDiagnosis(result);
   const actions = getActionPlan(result);
@@ -423,93 +445,159 @@ function ResultScreen({
           );
         })()}
 
-        {/* Strengths & Improvements */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-5">
-          <div className="space-y-3">
-            <p className="font-semibold">💪 강점</p>
-            {getStrengths(result).map((s, i) => (
-              <div key={i} className="flex gap-3 text-sm">
-                <span className="shrink-0 text-green-400 mt-0.5">✓</span>
-                <p className="text-[var(--color-text-muted)] leading-relaxed">{s}</p>
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-[var(--color-border)]" />
-          <div className="space-y-3">
-            <p className="font-semibold">⚡ 개선 포인트</p>
-            {getImprovements(result).map((s, i) => (
-              <div key={i} className="flex gap-3 text-sm">
-                <span className="shrink-0 text-orange-400 mt-0.5">→</span>
-                <p className="text-[var(--color-text-muted)] leading-relaxed">{s}</p>
-              </div>
-            ))}
-          </div>
+        {/* Strengths */}
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
+          <p className="font-semibold">💪 강점</p>
+          {getStrengths(result).map((s, i) => (
+            <div key={i} className="flex gap-3 text-sm">
+              <span className="shrink-0 text-green-400 mt-0.5">✓</span>
+              <p className="text-[var(--color-text-muted)] leading-relaxed">{s}</p>
+            </div>
+          ))}
         </div>
 
-        {/* Tool Recommendations */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
-          <p className="font-semibold">🛠️ 맞춤 도구 추천</p>
-          <div className="space-y-3">
-            {getToolRecommendations(result).map((tool, i) => (
-              <div key={i} className="rounded-xl bg-[var(--color-bg)] p-3 text-sm space-y-1">
-                <p className="font-semibold">{tool.name}</p>
-                <p className="text-[var(--color-text-muted)]">{tool.reason}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Resource Recommendations */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
-          <p className="font-semibold">📚 추천 학습 자료</p>
-          <div className="space-y-3">
-            {getResourceRecommendations(result).map((res, i) => (
-              <div key={i} className="flex gap-3 text-sm">
-                <span className="shrink-0 text-lg">{res.type.split(" ")[0]}</span>
-                <div>
-                  <p className="font-medium">{res.title}</p>
-                  <p className="text-[var(--color-text-muted)] text-xs mt-0.5">{res.reason}</p>
+        {/* ── EMAIL GATE ── */}
+        {!unlocked ? (
+          <>
+            {/* Blurred preview */}
+            <div className="relative">
+              <div className="blur-[6px] pointer-events-none select-none space-y-6">
+                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
+                  <p className="font-semibold">⚡ 개선 포인트</p>
+                  <div className="flex gap-3 text-sm">
+                    <span className="shrink-0 text-orange-400 mt-0.5">→</span>
+                    <p className="text-[var(--color-text-muted)]">구조를 잡는 데 시간을 쓰느라 실제 기록량이 줄어들 수 있습니다.</p>
+                  </div>
+                  <div className="flex gap-3 text-sm">
+                    <span className="shrink-0 text-orange-400 mt-0.5">→</span>
+                    <p className="text-[var(--color-text-muted)]">기록 습관이 아직 불규칙합니다. 매일 1분이라도 적는 루틴이 필요합니다.</p>
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
+                  <p className="font-semibold">🛠️ 맞춤 도구 추천</p>
+                  <div className="rounded-xl bg-[var(--color-bg)] p-3 text-sm">
+                    <p className="font-semibold">Notion</p>
+                    <p className="text-[var(--color-text-muted)]">데이터베이스와 관계형 구조가 분류 체계에 최적입니다.</p>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Bottleneck & Actions */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
-          <p className="font-semibold">🎯 이번 주 액션 플랜</p>
-          <p className="text-xs text-[var(--color-text-muted)]">
-            {bn.emoji} {bn.name} — {bn.description}
-          </p>
-          <div className="space-y-3">
-            {actions.map((action, i) => (
-              <div key={i} className="flex gap-3 text-sm">
-                <span className="shrink-0 w-6 h-6 rounded-full bg-[var(--color-primary)]/20 text-[var(--color-primary)] flex items-center justify-center text-xs font-bold">
-                  {i + 1}
-                </span>
-                <p className="text-[var(--color-text-muted)] leading-relaxed">
-                  {action}
-                </p>
+              {/* Overlay CTA */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 text-center space-y-4 max-w-sm mx-4 shadow-2xl">
+                  <div className="space-y-2">
+                    <p className="text-2xl">🔒</p>
+                    <p className="font-semibold">상세 분석 리포트 잠금 해제</p>
+                    <p className="text-sm text-[var(--color-text-muted)]">
+                      개선 포인트, 맞춤 도구 추천, 학습 자료,<br />
+                      액션 플랜까지 전체 리포트를 확인하세요.
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <input
+                      type="text"
+                      placeholder="이름"
+                      value={gateName}
+                      onChange={(e) => setGateName(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                    />
+                    <input
+                      type="email"
+                      placeholder="이메일"
+                      value={gateEmail}
+                      onChange={(e) => setGateEmail(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                    />
+                    <button
+                      onClick={handleUnlock}
+                      disabled={!gateName.trim() || !gateEmail.trim() || !gateEmail.includes("@")}
+                      className="w-full py-3 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-colors cursor-pointer"
+                    >
+                      🔓 전체 리포트 보기
+                    </button>
+                  </div>
+                  <p className="text-xs text-[var(--color-text-muted)]">
+                    유형별 맞춤 가이드를 이메일로 보내드립니다.
+                  </p>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Improvements */}
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
+              <p className="font-semibold">⚡ 개선 포인트</p>
+              {getImprovements(result).map((s, i) => (
+                <div key={i} className="flex gap-3 text-sm">
+                  <span className="shrink-0 text-orange-400 mt-0.5">→</span>
+                  <p className="text-[var(--color-text-muted)] leading-relaxed">{s}</p>
+                </div>
+              ))}
+            </div>
 
-        {/* CTA */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 text-center space-y-3">
-          <p className="font-semibold">📬 유형별 맞춤 PKM 가이드가 궁금하다면?</p>
-          <p className="text-sm text-[var(--color-text-muted)]">
-            나에게 맞는 기록법과 AI 활용 전략을 무료로 보내드립니다.
-          </p>
-          <a
-            href="https://www.threads.net/@productibe"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block w-full py-3 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold transition-colors"
-          >
-            @productibe 팔로우하기
-          </a>
-        </div>
+            {/* Tool Recommendations */}
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
+              <p className="font-semibold">🛠️ 맞춤 도구 추천</p>
+              <div className="space-y-3">
+                {getToolRecommendations(result).map((tool, i) => (
+                  <div key={i} className="rounded-xl bg-[var(--color-bg)] p-3 text-sm space-y-1">
+                    <p className="font-semibold">{tool.name}</p>
+                    <p className="text-[var(--color-text-muted)]">{tool.reason}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Resource Recommendations */}
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
+              <p className="font-semibold">📚 추천 학습 자료</p>
+              <div className="space-y-3">
+                {getResourceRecommendations(result).map((res, i) => (
+                  <div key={i} className="flex gap-3 text-sm">
+                    <span className="shrink-0 text-lg">{res.type.split(" ")[0]}</span>
+                    <div>
+                      <p className="font-medium">{res.title}</p>
+                      <p className="text-[var(--color-text-muted)] text-xs mt-0.5">{res.reason}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottleneck & Actions */}
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
+              <p className="font-semibold">🎯 이번 주 액션 플랜</p>
+              <p className="text-xs text-[var(--color-text-muted)]">
+                {bn.emoji} {bn.name} — {bn.description}
+              </p>
+              <div className="space-y-3">
+                {actions.map((action, i) => (
+                  <div key={i} className="flex gap-3 text-sm">
+                    <span className="shrink-0 w-6 h-6 rounded-full bg-[var(--color-primary)]/20 text-[var(--color-primary)] flex items-center justify-center text-xs font-bold">
+                      {i + 1}
+                    </span>
+                    <p className="text-[var(--color-text-muted)] leading-relaxed">
+                      {action}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 text-center space-y-3">
+              <p className="font-semibold">📬 @productibe 팔로우하고 더 많은 팁 받기</p>
+              <a
+                href="https://www.threads.net/@productibe"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block w-full py-3 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold transition-colors"
+              >
+                Threads에서 팔로우하기
+              </a>
+            </div>
+          </>
+        )}
 
         {/* Share & Restart */}
         <div className="flex gap-3">
