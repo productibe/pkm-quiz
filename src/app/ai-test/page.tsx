@@ -39,14 +39,22 @@ function decodeAnswers(code: string): AIChoice[] | null {
   }
 }
 
+/* ─── Category Config ─── */
+const categoryConfig: Record<string, { color: string; class: string }> = {
+  usage: { color: "#06b6d4", class: "bg-tint-ai" },
+  prompt: { color: "#8b5cf6", class: "bg-tint-output" },
+  integration: { color: "#f59e0b", class: "bg-tint-bottleneck" },
+  output: { color: "#10b981", class: "bg-tint-maturity" },
+};
+
 /* ─── Intro Screen ─── */
 function IntroScreen({ onStart }: { onStart: () => void }) {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-lg w-full text-center space-y-8">
-        <div className="space-y-3">
-          <p className="text-6xl">🤖</p>
-          <h1 className="text-3xl font-bold tracking-tight">
+    <div className="min-h-screen gradient-mesh-ai flex items-center justify-center px-4">
+      <div className="max-w-lg w-full text-center space-y-8 animate-fadeInUp">
+        <div className="space-y-4">
+          <p className="text-6xl animate-scaleIn">🤖</p>
+          <h1 className="text-5xl font-black tracking-tight gradient-text-ai">
             당신의 AI 활용, 몇 레벨인가요?
           </h1>
           <p className="text-[var(--color-text-muted)] text-lg leading-relaxed">
@@ -58,10 +66,10 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
 
         <div className="grid grid-cols-1 gap-3 text-sm">
           {(["observer", "experimenter", "practitioner", "poweruser", "architect"] as AILevel[]).map(
-            (level) => (
+            (level, i) => (
               <div
                 key={level}
-                className="rounded-xl p-3 border border-[var(--color-border)] bg-[var(--color-card)] flex items-center gap-3"
+                className={`glass rounded-xl p-3 flex items-center gap-3 hover-lift stagger-${i + 1} opacity-0 animate-fadeInUp`}
               >
                 <span className="text-2xl">{aiLevelResults[level].emoji}</span>
                 <div className="text-left flex-1">
@@ -75,8 +83,8 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
           )}
         </div>
 
-        <div className="text-left text-sm text-[var(--color-text-muted)] space-y-1 bg-[var(--color-card)] rounded-xl p-4 border border-[var(--color-border)]">
-          <p className="font-medium text-[var(--color-text)]">📊 분석 항목</p>
+        <div className="text-left text-sm text-[var(--color-text-muted)] space-y-2 glass rounded-xl p-5 stagger-6 opacity-0 animate-fadeInUp">
+          <p className="font-semibold text-[var(--color-text)] text-base">📊 분석 항목</p>
           <p>• AI 활용 단계 — 얼마나 자주, 어떻게 쓰는가</p>
           <p>• 프롬프트 설계력 — 얼마나 잘 시키는가</p>
           <p>• 기록 연결도 — AI와 기록이 연결되어 있는가</p>
@@ -85,12 +93,17 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
 
         <button
           onClick={onStart}
-          className="w-full py-4 rounded-2xl bg-[#06b6d4] hover:bg-[#0891b2] text-white font-semibold text-lg transition-colors cursor-pointer"
+          className="w-full py-4 rounded-2xl text-white font-bold text-lg cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform stagger-6 opacity-0 animate-fadeInUp shadow-lg"
+          style={{
+            background: 'linear-gradient(90deg, #06b6d4 0%, #3b82f6 50%, #06b6d4 100%)',
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 2s linear infinite',
+          }}
         >
           진단 시작하기
         </button>
 
-        <p className="text-xs text-[var(--color-text-muted)]">
+        <p className="text-xs text-[var(--color-text-muted)] stagger-6 opacity-0 animate-fadeInUp">
           약 3분 소요 · 생산적생산자 @productibe
         </p>
       </div>
@@ -109,43 +122,58 @@ function QuestionScreen({
   const q = aiQuestions[questionIndex];
   const progress = ((questionIndex + 1) / aiQuestions.length) * 100;
   const cat = aiCategoryLabels[q.category];
+  const config = categoryConfig[q.category];
   const [selected, setSelected] = useState<number | null>(null);
+  const [slideOut, setSlideOut] = useState(false);
 
   const handleSelect = useCallback(
     (choice: AIChoice, idx: number) => {
       if (selected !== null) return;
       setSelected(idx);
       setTimeout(() => {
-        onAnswer(choice);
-        setSelected(null);
+        setSlideOut(true);
+        setTimeout(() => {
+          onAnswer(choice);
+          setSelected(null);
+          setSlideOut(false);
+        }, 200);
       }, 300);
     },
     [selected, onAnswer]
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-lg w-full space-y-6">
+    <div className={`min-h-screen gradient-mesh-ai ${config.class} flex items-center justify-center px-4 transition-all duration-500`}>
+      <div className={`max-w-lg w-full space-y-6 ${slideOut ? 'animate-slideOutLeft' : 'animate-slideInRight'}`}>
         {/* Progress */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex justify-between text-sm text-[var(--color-text-muted)]">
-            <span>
+            <span className="font-semibold" style={{ color: config.color }}>
               {cat.emoji} {cat.label}
             </span>
             <span>
               {questionIndex + 1} / {aiQuestions.length}
             </span>
           </div>
-          <div className="h-1.5 bg-[var(--color-border)] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#06b6d4] rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            />
+          
+          {/* Step indicator dots */}
+          <div className="flex gap-1.5">
+            {Array.from({ length: aiQuestions.length }, (_, i) => (
+              <div
+                key={i}
+                className="h-1 flex-1 rounded-full transition-all duration-500"
+                style={{
+                  background: i <= questionIndex 
+                    ? `linear-gradient(90deg, ${config.color} 0%, ${config.color}dd 100%)`
+                    : 'rgba(255,255,255,0.1)',
+                }}
+              />
+            ))}
           </div>
         </div>
 
         {/* Question */}
-        <h2 className="text-xl font-bold whitespace-pre-line leading-relaxed pt-2">
+        <h2 className="text-2xl font-bold whitespace-pre-line leading-relaxed pt-2">
           {q.question}
         </h2>
 
@@ -155,16 +183,27 @@ function QuestionScreen({
             <button
               key={i}
               onClick={() => handleSelect(choice, i)}
-              className={`w-full text-left p-4 rounded-xl border transition-all cursor-pointer ${
+              className={`w-full text-left p-4 rounded-xl glass cursor-pointer transition-all duration-200 ${
                 selected === i
-                  ? "border-[#06b6d4] bg-[#06b6d4]/10 scale-[0.98]"
-                  : "border-[var(--color-border)] bg-[var(--color-card)] hover:border-[#06b6d4] hover:bg-[#06b6d4]/5"
+                  ? "scale-[0.98] animate-bounce"
+                  : "hover:scale-[1.02] hover-glow-ai"
               }`}
+              style={{
+                borderColor: selected === i ? config.color : 'transparent',
+                background: selected === i 
+                  ? `linear-gradient(135deg, ${config.color}15 0%, ${config.color}08 100%)`
+                  : 'rgba(255,255,255,0.05)',
+              }}
             >
-              <span className="text-[var(--color-text-muted)] mr-3 font-mono text-sm">
+              <span 
+                className="mr-3 font-mono text-sm font-bold"
+                style={{ color: selected === i ? config.color : 'var(--color-text-muted)' }}
+              >
                 {String.fromCharCode(65 + i)}
               </span>
-              {choice.text}
+              <span className={selected === i ? 'font-medium' : ''}>
+                {choice.text}
+              </span>
             </button>
           ))}
         </div>
@@ -178,23 +217,29 @@ function ScoreBar({
   label,
   value,
   sublabel,
+  index = 0,
 }: {
   label: string;
   value: number;
   sublabel?: string;
+  index?: number;
 }) {
   return (
-    <div className="space-y-1">
+    <div className={`space-y-2 opacity-0 animate-fadeInUp stagger-${index + 1}`}>
       <div className="flex justify-between text-sm">
-        <span>{label}</span>
+        <span className="font-medium">{label}</span>
         <span className="text-[var(--color-text-muted)]">
           {sublabel ?? `${value}%`}
         </span>
       </div>
-      <div className="h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
+      <div className="h-2.5 bg-[var(--color-border)] rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-1000 ease-out"
-          style={{ width: `${value}%`, backgroundColor: "#06b6d4" }}
+          style={{ 
+            width: `${value}%`, 
+            background: `linear-gradient(90deg, #06b6d4 0%, #0891b2 100%)`,
+            boxShadow: `0 0 8px #06b6d440`,
+          }}
         />
       </div>
     </div>
@@ -205,7 +250,6 @@ function ScoreBar({
 function getInsight(result: AIResult): string {
   const { level, categoryPercents } = result;
 
-  // 가장 높은/낮은 카테고리 찾기
   const categories = [
     { name: "활용 빈도", key: "usage", value: categoryPercents.usage },
     { name: "프롬프트", key: "prompt", value: categoryPercents.prompt },
@@ -238,9 +282,8 @@ function getInsight(result: AIResult): string {
 /* ─── Action Generator ─── */
 function getActions(result: AIResult): string[] {
   const actions: string[] = [];
-  const { level, categoryPercents } = result;
+  const { categoryPercents } = result;
 
-  // integration이 낮으면
   if (categoryPercents.integration < 50) {
     actions.push(
       "이번 주에 AI에게 최근 메모 하나를 붙여넣고 맥락을 제공해보세요."
@@ -249,7 +292,6 @@ function getActions(result: AIResult): string[] {
     actions.push("자주 쓰는 맥락을 템플릿화해서 재사용해보세요.");
   }
 
-  // prompt가 낮으면
   if (categoryPercents.prompt < 50) {
     actions.push(
       '질문할 때 "역할 + 배경 + 출력 형식"을 명시해보세요. 결과가 달라집니다.'
@@ -258,7 +300,6 @@ function getActions(result: AIResult): string[] {
     actions.push("자주 쓰는 프롬프트를 메모장에 정리해서 라이브러리를 만들어보세요.");
   }
 
-  // output이 낮으면
   if (categoryPercents.output < 50) {
     actions.push(
       "AI 결과물을 그대로 쓰지 말고, 내 관점으로 한 번 재구성해보세요."
@@ -307,7 +348,6 @@ function ResultScreen({
   const insight = getInsight(result);
   const actions = getActions(result);
 
-  // Set URL with answer code
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.set("r", answerCode);
@@ -355,75 +395,82 @@ function ResultScreen({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="max-w-lg w-full space-y-6">
+    <div className="min-h-screen gradient-mesh-ai flex items-center justify-center px-4 py-10">
+      <div className="max-w-3xl w-full space-y-6">
         {/* Header */}
-        <div className="text-center space-y-3">
-          <p className="text-xs font-medium tracking-widest text-[var(--color-text-muted)] uppercase">
+        <div className="text-center space-y-4 opacity-0 animate-fadeInUp">
+          <p className="text-xs font-bold tracking-widest text-[var(--color-text-muted)] uppercase">
             AI 활용 레벨 분석 리포트
           </p>
-          <p className="text-6xl">{result.levelInfo.emoji}</p>
+          <p className="text-6xl animate-scaleIn">{result.levelInfo.emoji}</p>
           <div>
-            <h1 className="text-3xl font-bold">{result.levelInfo.name}</h1>
-            <p className="text-[var(--color-text-muted)] mt-1">
+            <h1 className="text-4xl font-black gradient-text-ai">{result.levelInfo.name}</h1>
+            <p className="text-[var(--color-text-muted)] mt-2 text-lg">
               {result.levelInfo.nickname}
             </p>
           </div>
           <p className="text-sm text-[var(--color-text-muted)]">
-            총점: {result.totalScore} / 60점
+            총점: <span className="font-bold">{result.totalScore}</span> / 60점
           </p>
         </div>
 
-        {/* Radar Chart */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
-          <RadarChart data={radarData} />
-        </div>
+        {/* Bento Grid on Desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Radar Chart - Large */}
+          <div className="glass-strong rounded-2xl p-6 opacity-0 animate-fadeInUp stagger-1 hover-lift">
+            <RadarChart data={radarData} />
+          </div>
 
-        {/* Insight */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
-          <p className="font-semibold">💡 핵심 인사이트</p>
-          <p className="text-[var(--color-text-muted)] leading-relaxed">
-            {insight}
-          </p>
+          {/* Insight - Large */}
+          <div className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-2">
+            <p className="font-bold text-lg">💡 핵심 인사이트</p>
+            <p className="text-[var(--color-text-muted)] leading-relaxed">
+              {insight}
+            </p>
+          </div>
         </div>
 
         {/* Score Bars */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
-          <p className="font-semibold">📊 카테고리별 분석</p>
+        <div className="glass-strong rounded-2xl p-6 space-y-5 opacity-0 animate-fadeInUp stagger-3">
+          <p className="font-bold text-lg">📊 카테고리별 분석</p>
           <ScoreBar
             label={`🤖 AI 활용 단계 — ${result.categoryLabels.usage}`}
             value={result.categoryPercents.usage}
+            index={0}
           />
           <ScoreBar
             label={`📝 프롬프트 설계력 — ${result.categoryLabels.prompt}`}
             value={result.categoryPercents.prompt}
+            index={1}
           />
           <ScoreBar
             label={`🔗 기록 연결도 — ${result.categoryLabels.integration}`}
             value={result.categoryPercents.integration}
+            index={2}
           />
           <ScoreBar
             label={`🎯 아웃풋 전환력 — ${result.categoryLabels.output}`}
             value={result.categoryPercents.output}
+            index={3}
           />
         </div>
 
-        {/* PKM Connection (중요!) */}
+        {/* PKM Connection */}
         <div
-          className="rounded-2xl border p-5 space-y-3"
+          className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-4 hover-lift"
           style={{
             borderColor: result.levelInfo.color + "40",
-            background: result.levelInfo.color + "08",
+            boxShadow: `0 0 40px ${result.levelInfo.color}15`,
           }}
         >
-          <p className="font-semibold text-lg">
+          <p className="font-bold text-xl">
             🔗 AI를 더 잘 쓰려면 기록이 필요합니다
           </p>
           <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
             {result.levelInfo.pkmConnection}
           </p>
-          <div className="rounded-xl bg-[var(--color-bg)] p-3 text-sm">
-            <span className="font-semibold" style={{ color: result.levelInfo.color }}>
+          <div className="glass-input rounded-xl p-4 text-sm">
+            <span className="font-bold" style={{ color: result.levelInfo.color }}>
               💡 핵심 —{" "}
             </span>
             <span className="text-[var(--color-text-muted)]">
@@ -435,11 +482,10 @@ function ResultScreen({
         {/* ── EMAIL GATE ── */}
         {!unlocked ? (
           <>
-            {/* Blurred preview */}
-            <div className="relative">
-              <div className="blur-[6px] pointer-events-none select-none space-y-6">
-                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
-                  <p className="font-semibold">🎯 이번 주 액션 플랜</p>
+            <div className="relative opacity-0 animate-fadeInUp stagger-5">
+              <div className="blur-[8px] pointer-events-none select-none space-y-6">
+                <div className="glass-strong rounded-2xl p-6 space-y-4">
+                  <p className="font-bold text-lg">🎯 이번 주 액션 플랜</p>
                   <div className="flex gap-3 text-sm">
                     <span className="shrink-0">1</span>
                     <p className="text-[var(--color-text-muted)]">
@@ -448,13 +494,18 @@ function ResultScreen({
                   </div>
                 </div>
               </div>
-              {/* Overlay CTA */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 text-center space-y-4 max-w-sm mx-4 shadow-2xl">
-                  <div className="space-y-2">
-                    <p className="text-2xl">🔒</p>
-                    <p className="font-semibold">액션 플랜 잠금 해제</p>
-                    <p className="text-sm text-[var(--color-text-muted)]">
+              
+              <div className="absolute inset-0 flex items-center justify-center p-4">
+                <div className="glass-strong rounded-2xl p-8 text-center space-y-5 max-w-md w-full shadow-2xl"
+                  style={{
+                    animation: 'glow 2s ease-in-out infinite',
+                    boxShadow: '0 0 30px rgba(6, 182, 212, 0.3)',
+                  }}
+                >
+                  <div className="space-y-3">
+                    <p className="text-3xl">🔒</p>
+                    <p className="font-bold text-xl">액션 플랜 잠금 해제</p>
+                    <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
                       레벨별 맞춤 액션 플랜과
                       <br />
                       AI × PKM 연결 가이드를 확인하세요.
@@ -466,14 +517,14 @@ function ResultScreen({
                       placeholder="이름"
                       value={gateName}
                       onChange={(e) => setGateName(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[#06b6d4] transition-colors"
+                      className="w-full px-5 py-3.5 rounded-xl glass-input text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[#06b6d4] transition-all"
                     />
                     <input
                       type="email"
                       placeholder="이메일"
                       value={gateEmail}
                       onChange={(e) => setGateEmail(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[#06b6d4] transition-colors"
+                      className="w-full px-5 py-3.5 rounded-xl glass-input text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[#06b6d4] transition-all"
                     />
                     <button
                       onClick={handleUnlock}
@@ -482,7 +533,7 @@ function ResultScreen({
                         !gateEmail.trim() ||
                         !gateEmail.includes("@")
                       }
-                      className="w-full py-3 rounded-xl bg-[#06b6d4] hover:bg-[#0891b2] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-colors cursor-pointer"
+                      className="w-full py-4 rounded-xl bg-gradient-to-r from-[#06b6d4] to-[#3b82f6] hover:shadow-lg hover:shadow-cyan-500/50 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                     >
                       🔓 전체 리포트 보기
                     </button>
@@ -497,12 +548,12 @@ function ResultScreen({
         ) : (
           <>
             {/* Actions */}
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
-              <p className="font-semibold">🎯 이번 주 액션 플랜</p>
+            <div className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-5">
+              <p className="font-bold text-lg">🎯 이번 주 액션 플랜</p>
               <div className="space-y-3">
                 {actions.map((action, i) => (
                   <div key={i} className="flex gap-3 text-sm">
-                    <span className="shrink-0 w-6 h-6 rounded-full bg-[#06b6d4]/20 text-[#06b6d4] flex items-center justify-center text-xs font-bold">
+                    <span className="shrink-0 w-7 h-7 rounded-full bg-[#06b6d4]/20 text-[#06b6d4] flex items-center justify-center text-xs font-bold">
                       {i + 1}
                     </span>
                     <p className="text-[var(--color-text-muted)] leading-relaxed">
@@ -514,29 +565,29 @@ function ResultScreen({
             </div>
 
             {/* Cross Promo - PKM Quiz */}
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
-              <p className="font-semibold">🧬 기록 DNA도 궁금하다면?</p>
+            <div className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-6">
+              <p className="font-bold text-lg">🧬 기록 DNA도 궁금하다면?</p>
               <p className="text-sm text-[var(--color-text-muted)]">
                 AI를 잘 쓰려면 기록이 필요합니다. 당신의 기록 성향을 진단해보세요.
               </p>
               <Link
                 href="/"
-                className="inline-block w-full text-center py-3 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold transition-colors"
+                className="inline-block w-full text-center py-4 rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[#10b981] text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-green-500/50"
               >
                 👉 PKM 유형 진단하기
               </Link>
             </div>
 
             {/* CTA */}
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 text-center space-y-3">
-              <p className="font-semibold">
+            <div className="glass-strong rounded-2xl p-6 text-center space-y-4 opacity-0 animate-fadeInUp stagger-1">
+              <p className="font-bold text-lg">
                 📬 @productibe 팔로우하고 더 많은 팁 받기
               </p>
               <a
                 href="https://www.threads.net/@productibe"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block w-full py-3 rounded-xl bg-[#06b6d4] hover:bg-[#0891b2] text-white font-semibold transition-colors"
+                className="inline-block w-full py-4 rounded-xl bg-gradient-to-r from-[#06b6d4] to-[#3b82f6] text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-cyan-500/50"
               >
                 Threads에서 팔로우하기
               </a>
@@ -545,22 +596,22 @@ function ResultScreen({
         )}
 
         {/* Share & Restart */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 opacity-0 animate-fadeInUp stagger-6">
           <button
             onClick={handleCopy}
-            className="flex-1 py-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-card)] transition-colors cursor-pointer text-sm"
+            className="flex-1 py-3.5 rounded-xl glass font-semibold hover-lift cursor-pointer"
           >
             {copied ? "✅ 복사됨!" : "📋 결과 공유"}
           </button>
           <button
             onClick={onRestart}
-            className="flex-1 py-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-card)] transition-colors cursor-pointer text-sm"
+            className="flex-1 py-3.5 rounded-xl glass font-semibold hover-lift cursor-pointer"
           >
             🔄 다시 하기
           </button>
         </div>
 
-        <p className="text-center text-xs text-[var(--color-text-muted)]">
+        <p className="text-center text-xs text-[var(--color-text-muted)] opacity-0 animate-fadeInUp stagger-6">
           생산적생산자 @productibe
         </p>
       </div>
@@ -576,7 +627,6 @@ export default function AITestPage() {
   const [answerCode, setAnswerCode] = useState("");
   const [result, setResult] = useState<AIResult | null>(null);
 
-  // Check URL for shared result on load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("r");

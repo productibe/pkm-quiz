@@ -38,14 +38,23 @@ function decodeAnswers(code: string): Choice[] | null {
   }
 }
 
+/* ─── Category Config ─── */
+const categoryLabels: Record<string, { label: string; emoji: string; color: string; class: string }> = {
+  style: { label: "기록 성향", emoji: "✍️", color: "#22c55e", class: "bg-tint-style" },
+  maturity: { label: "PKM 성숙도", emoji: "📈", color: "#10b981", class: "bg-tint-maturity" },
+  ai: { label: "AI 활용도", emoji: "🤖", color: "#06b6d4", class: "bg-tint-ai" },
+  output: { label: "아웃풋 성향", emoji: "🎯", color: "#a855f7", class: "bg-tint-output" },
+  bottleneck: { label: "기록 병목", emoji: "🔍", color: "#f59e0b", class: "bg-tint-bottleneck" },
+};
+
 /* ─── Intro Screen ─── */
 function IntroScreen({ onStart }: { onStart: () => void }) {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-lg w-full text-center space-y-8">
-        <div className="space-y-3">
-          <p className="text-6xl">🧬</p>
-          <h1 className="text-3xl font-bold tracking-tight">
+    <div className="min-h-screen gradient-mesh-pkm flex items-center justify-center px-4">
+      <div className="max-w-lg w-full text-center space-y-8 animate-fadeInUp">
+        <div className="space-y-4">
+          <p className="text-6xl animate-scaleIn">🧬</p>
+          <h1 className="text-5xl font-black tracking-tight gradient-text">
             당신의 기록 DNA는?
           </h1>
           <p className="text-[var(--color-text-muted)] text-lg leading-relaxed">
@@ -57,10 +66,10 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
 
         <div className="grid grid-cols-2 gap-3 text-sm">
           {(["architect", "gardener", "student", "librarian"] as PKMType[]).map(
-            (t) => (
+            (t, i) => (
               <div
                 key={t}
-                className="rounded-xl p-3 border border-[var(--color-border)] bg-[var(--color-card)]"
+                className={`glass rounded-xl p-3 hover-lift stagger-${i + 1} opacity-0 animate-fadeInUp`}
               >
                 <span className="text-2xl">{typeResults[t].emoji}</span>
                 <p className="font-medium mt-1">{typeResults[t].name}</p>
@@ -69,8 +78,8 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
           )}
         </div>
 
-        <div className="text-left text-sm text-[var(--color-text-muted)] space-y-1 bg-[var(--color-card)] rounded-xl p-4 border border-[var(--color-border)]">
-          <p className="font-medium text-[var(--color-text)]">📊 분석 항목</p>
+        <div className="text-left text-sm text-[var(--color-text-muted)] space-y-2 glass rounded-xl p-5 stagger-5 opacity-0 animate-fadeInUp">
+          <p className="font-semibold text-[var(--color-text)] text-base">📊 분석 항목</p>
           <p>• 기록 성향 — 어떻게 기록하는가</p>
           <p>• PKM 성숙도 — 기록 습관이 얼마나 자리잡혔는가</p>
           <p>• AI 활용도 — AI를 기록에 얼마나 활용하는가</p>
@@ -80,27 +89,18 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
 
         <button
           onClick={onStart}
-          className="w-full py-4 rounded-2xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold text-lg transition-colors cursor-pointer"
+          className="w-full py-4 rounded-2xl animate-shimmer text-white font-bold text-lg cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform stagger-6 opacity-0 animate-fadeInUp shadow-lg"
         >
           진단 시작하기
         </button>
 
-        <p className="text-xs text-[var(--color-text-muted)]">
+        <p className="text-xs text-[var(--color-text-muted)] stagger-6 opacity-0 animate-fadeInUp">
           약 3분 소요 · 생산적생산자 @productibe
         </p>
       </div>
     </div>
   );
 }
-
-/* ─── Category Label ─── */
-const categoryLabels: Record<string, { label: string; emoji: string }> = {
-  style: { label: "기록 성향", emoji: "✍️" },
-  maturity: { label: "PKM 성숙도", emoji: "📈" },
-  ai: { label: "AI 활용도", emoji: "🤖" },
-  output: { label: "아웃풋 성향", emoji: "🎯" },
-  bottleneck: { label: "기록 병목", emoji: "🔍" },
-};
 
 /* ─── Question Screen ─── */
 function QuestionScreen({
@@ -114,42 +114,56 @@ function QuestionScreen({
   const progress = ((questionIndex + 1) / questions.length) * 100;
   const cat = categoryLabels[q.category];
   const [selected, setSelected] = useState<number | null>(null);
+  const [slideOut, setSlideOut] = useState(false);
 
   const handleSelect = useCallback(
     (choice: Choice, idx: number) => {
       if (selected !== null) return;
       setSelected(idx);
       setTimeout(() => {
-        onAnswer(choice);
-        setSelected(null);
+        setSlideOut(true);
+        setTimeout(() => {
+          onAnswer(choice);
+          setSelected(null);
+          setSlideOut(false);
+        }, 200);
       }, 300);
     },
     [selected, onAnswer]
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-lg w-full space-y-6">
+    <div className={`min-h-screen gradient-mesh-pkm ${cat.class} flex items-center justify-center px-4 transition-all duration-500`}>
+      <div className={`max-w-lg w-full space-y-6 ${slideOut ? 'animate-slideOutLeft' : 'animate-slideInRight'}`}>
         {/* Progress */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex justify-between text-sm text-[var(--color-text-muted)]">
-            <span>
+            <span className="font-semibold" style={{ color: cat.color }}>
               {cat.emoji} {cat.label}
             </span>
             <span>
               {questionIndex + 1} / {questions.length}
             </span>
           </div>
-          <div className="h-1.5 bg-[var(--color-border)] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[var(--color-primary)] rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%` }}
-            />
+          
+          {/* Step indicator dots */}
+          <div className="flex gap-1.5">
+            {Array.from({ length: questions.length }, (_, i) => (
+              <div
+                key={i}
+                className="h-1 flex-1 rounded-full transition-all duration-500"
+                style={{
+                  background: i <= questionIndex 
+                    ? `linear-gradient(90deg, ${cat.color} 0%, ${cat.color}dd 100%)`
+                    : 'rgba(255,255,255,0.1)',
+                }}
+              />
+            ))}
           </div>
         </div>
 
         {/* Question */}
-        <h2 className="text-xl font-bold whitespace-pre-line leading-relaxed pt-2">
+        <h2 className="text-2xl font-bold whitespace-pre-line leading-relaxed pt-2">
           {q.question}
         </h2>
 
@@ -159,16 +173,27 @@ function QuestionScreen({
             <button
               key={i}
               onClick={() => handleSelect(choice, i)}
-              className={`w-full text-left p-4 rounded-xl border transition-all cursor-pointer ${
+              className={`w-full text-left p-4 rounded-xl glass cursor-pointer transition-all duration-200 ${
                 selected === i
-                  ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 scale-[0.98]"
-                  : "border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/5"
+                  ? "scale-[0.98] animate-bounce"
+                  : "hover:scale-[1.02] hover-glow"
               }`}
+              style={{
+                borderColor: selected === i ? cat.color : 'transparent',
+                background: selected === i 
+                  ? `linear-gradient(135deg, ${cat.color}15 0%, ${cat.color}08 100%)`
+                  : 'rgba(255,255,255,0.05)',
+              }}
             >
-              <span className="text-[var(--color-text-muted)] mr-3 font-mono text-sm">
+              <span 
+                className="mr-3 font-mono text-sm font-bold"
+                style={{ color: selected === i ? cat.color : 'var(--color-text-muted)' }}
+              >
                 {String.fromCharCode(65 + i)}
               </span>
-              {choice.text}
+              <span className={selected === i ? 'font-medium' : ''}>
+                {choice.text}
+              </span>
             </button>
           ))}
         </div>
@@ -183,24 +208,30 @@ function ScoreBar({
   value,
   color,
   sublabel,
+  index = 0,
 }: {
   label: string;
   value: number;
   color: string;
   sublabel?: string;
+  index?: number;
 }) {
   return (
-    <div className="space-y-1">
+    <div className={`space-y-2 opacity-0 animate-fadeInUp stagger-${index + 1}`}>
       <div className="flex justify-between text-sm">
-        <span>{label}</span>
+        <span className="font-medium">{label}</span>
         <span className="text-[var(--color-text-muted)]">
           {sublabel ?? `${value}%`}
         </span>
       </div>
-      <div className="h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
+      <div className="h-2.5 bg-[var(--color-border)] rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-1000 ease-out"
-          style={{ width: `${value}%`, backgroundColor: color }}
+          style={{ 
+            width: `${value}%`, 
+            background: `linear-gradient(90deg, ${color} 0%, ${color}dd 100%)`,
+            boxShadow: `0 0 8px ${color}40`,
+          }}
         />
       </div>
     </div>
@@ -279,7 +310,6 @@ function ResultScreen({
 
   const handleUnlock = () => {
     if (!gateName.trim() || !gateEmail.trim() || !gateEmail.includes("@")) return;
-    // Store lead data in localStorage + URL param for retrieval
     const leadData = {
       name: gateName,
       email: gateEmail,
@@ -289,7 +319,6 @@ function ResultScreen({
       timestamp: new Date().toISOString(),
       answerCode,
     };
-    // Save to localStorage for now (Tally/webhook integration later)
     const leads = JSON.parse(localStorage.getItem("pkm-quiz-leads") || "[]");
     leads.push(leadData);
     localStorage.setItem("pkm-quiz-leads", JSON.stringify(leads));
@@ -299,7 +328,6 @@ function ResultScreen({
   const diagnosis = getDiagnosis(result);
   const actions = getActionPlan(result);
 
-  // Set URL with answer code
   useEffect(() => {
     const url = new URL(window.location.href);
     url.searchParams.set("r", answerCode);
@@ -340,17 +368,17 @@ function ResultScreen({
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
-      <div className="max-w-lg w-full space-y-6">
+    <div className="min-h-screen gradient-mesh-pkm flex items-center justify-center px-4 py-10">
+      <div className="max-w-3xl w-full space-y-6">
         {/* Header */}
-        <div className="text-center space-y-3">
-          <p className="text-xs font-medium tracking-widest text-[var(--color-text-muted)] uppercase">
+        <div className="text-center space-y-4 opacity-0 animate-fadeInUp">
+          <p className="text-xs font-bold tracking-widest text-[var(--color-text-muted)] uppercase">
             PKM × AI 분석 리포트
           </p>
-          <p className="text-6xl">{primary.emoji}</p>
+          <p className="text-6xl animate-scaleIn">{primary.emoji}</p>
           <div>
-            <h1 className="text-3xl font-bold">{primary.name}</h1>
-            <p className="text-[var(--color-text-muted)] mt-1">
+            <h1 className="text-4xl font-black gradient-text">{primary.name}</h1>
+            <p className="text-[var(--color-text-muted)] mt-2 text-lg">
               {primary.nickname}
             </p>
           </div>
@@ -359,53 +387,61 @@ function ResultScreen({
               <span className="text-[var(--color-text-muted)]">
                 서브 유형:{" "}
               </span>
-              {secondary.emoji} {secondary.name}
+              <span className="font-semibold">{secondary.emoji} {secondary.name}</span>
             </p>
           )}
         </div>
 
-        {/* Radar Chart */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4">
-          <RadarChart data={radarData} />
+        {/* Bento Grid on Desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Radar Chart - Large */}
+          <div className="glass-strong rounded-2xl p-6 opacity-0 animate-fadeInUp stagger-1 hover-lift">
+            <RadarChart data={radarData} />
+          </div>
+
+          {/* Diagnosis - Large */}
+          <div className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-2">
+            <p className="font-bold text-lg">📌 핵심 진단</p>
+            <p className="text-[var(--color-text-muted)] leading-relaxed">
+              {diagnosis}
+            </p>
+          </div>
         </div>
 
-        {/* Diagnosis */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
-          <p className="font-semibold">📌 핵심 진단</p>
-          <p className="text-[var(--color-text-muted)] leading-relaxed">
-            {diagnosis}
-          </p>
-        </div>
-
-        {/* Score Bars */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
-          <p className="font-semibold">📊 상세 분석</p>
+        {/* Score Bars Grid */}
+        <div className="glass-strong rounded-2xl p-6 space-y-5 opacity-0 animate-fadeInUp stagger-3">
+          <p className="font-bold text-lg">📊 상세 분석</p>
           <ScoreBar
             label={`✍️ 기록 성향 — ${primary.emoji} ${primary.name}`}
             value={result.radarScores.style}
             color={primary.color}
+            index={0}
           />
           <ScoreBar
             label="📈 PKM 성숙도"
             value={result.radarScores.maturity}
             color="#22c55e"
             sublabel={`Lv.${result.maturityLevel} ${result.maturityLabel}`}
+            index={1}
           />
           <ScoreBar
             label="🤖 AI 활용도"
             value={result.radarScores.ai}
             color="#06b6d4"
             sublabel={`Lv.${result.aiLevel} ${result.aiLabel}`}
+            index={2}
           />
           <ScoreBar
             label={`🎯 아웃풋 — ${output.emoji} ${output.name}`}
             value={result.radarScores.output}
             color="#a855f7"
+            index={3}
           />
           <ScoreBar
             label={`🔍 성장 단계 — ${bn.emoji} ${bn.name}`}
             value={result.radarScores.bottleneck}
             color="#f59e0b"
+            index={4}
           />
         </div>
 
@@ -414,14 +450,14 @@ function ResultScreen({
           const combo = getCombinationInfo(result.primaryType, result.secondaryType);
           return (
             <div
-              className="rounded-2xl border p-5 space-y-4"
+              className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-4 hover-lift"
               style={{
                 borderColor: primary.color + "40",
-                background: primary.color + "08",
+                boxShadow: `0 0 40px ${primary.color}15`,
               }}
             >
               <div>
-                <p className="font-semibold text-lg">
+                <p className="font-bold text-xl">
                   {primary.emoji} {combo.title}
                 </p>
                 <p className="text-xs text-[var(--color-text-muted)] mt-1">
@@ -431,12 +467,12 @@ function ResultScreen({
               <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
                 {combo.description}
               </p>
-              <div className="rounded-xl bg-[var(--color-bg)] p-3 text-sm">
-                <span className="font-semibold text-[var(--color-primary)]">💡 Tip — </span>
+              <div className="glass-input rounded-xl p-4 text-sm">
+                <span className="font-bold" style={{ color: primary.color }}>💡 Tip — </span>
                 <span className="text-[var(--color-text-muted)]">{combo.tip}</span>
               </div>
               <blockquote
-                className="border-l-2 pl-4 italic text-[var(--color-text-muted)] text-sm"
+                className="border-l-4 pl-4 italic text-[var(--color-text-muted)] text-sm"
                 style={{ borderColor: primary.color }}
               >
                 &ldquo;{primary.quote}&rdquo;
@@ -446,11 +482,11 @@ function ResultScreen({
         })()}
 
         {/* Strengths */}
-        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
-          <p className="font-semibold">💪 강점</p>
+        <div className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-5">
+          <p className="font-bold text-lg">💪 강점</p>
           {getStrengths(result).map((s, i) => (
             <div key={i} className="flex gap-3 text-sm">
-              <span className="shrink-0 text-green-400 mt-0.5">✓</span>
+              <span className="shrink-0 text-green-400 mt-0.5 font-bold">✓</span>
               <p className="text-[var(--color-text-muted)] leading-relaxed">{s}</p>
             </div>
           ))}
@@ -459,35 +495,30 @@ function ResultScreen({
         {/* ── EMAIL GATE ── */}
         {!unlocked ? (
           <>
-            {/* Blurred preview */}
-            <div className="relative">
-              <div className="blur-[6px] pointer-events-none select-none space-y-6">
-                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
-                  <p className="font-semibold">⚡ 개선 포인트</p>
+            <div className="relative opacity-0 animate-fadeInUp stagger-6">
+              <div className="blur-[8px] pointer-events-none select-none space-y-6">
+                <div className="glass-strong rounded-2xl p-6 space-y-4">
+                  <p className="font-bold text-lg">⚡ 개선 포인트</p>
                   <div className="flex gap-3 text-sm">
-                    <span className="shrink-0 text-orange-400 mt-0.5">→</span>
+                    <span className="shrink-0 text-orange-400 mt-0.5 font-bold">→</span>
                     <p className="text-[var(--color-text-muted)]">구조를 잡는 데 시간을 쓰느라 실제 기록량이 줄어들 수 있습니다.</p>
                   </div>
-                  <div className="flex gap-3 text-sm">
-                    <span className="shrink-0 text-orange-400 mt-0.5">→</span>
-                    <p className="text-[var(--color-text-muted)]">기록 습관이 아직 불규칙합니다. 매일 1분이라도 적는 루틴이 필요합니다.</p>
-                  </div>
                 </div>
-                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
-                  <p className="font-semibold">🛠️ 맞춤 도구 추천</p>
-                  <div className="rounded-xl bg-[var(--color-bg)] p-3 text-sm">
+                <div className="glass-strong rounded-2xl p-6 space-y-4">
+                  <p className="font-bold text-lg">🛠️ 맞춤 도구 추천</p>
+                  <div className="glass-input rounded-xl p-4 text-sm">
                     <p className="font-semibold">Notion</p>
                     <p className="text-[var(--color-text-muted)]">데이터베이스와 관계형 구조가 분류 체계에 최적입니다.</p>
                   </div>
                 </div>
               </div>
-              {/* Overlay CTA */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 text-center space-y-4 max-w-sm mx-4 shadow-2xl">
-                  <div className="space-y-2">
-                    <p className="text-2xl">🔒</p>
-                    <p className="font-semibold">상세 분석 리포트 잠금 해제</p>
-                    <p className="text-sm text-[var(--color-text-muted)]">
+              
+              <div className="absolute inset-0 flex items-center justify-center p-4">
+                <div className="glass-strong rounded-2xl p-8 text-center space-y-5 max-w-md w-full shadow-2xl animate-glow">
+                  <div className="space-y-3">
+                    <p className="text-3xl">🔒</p>
+                    <p className="font-bold text-xl">상세 분석 리포트 잠금 해제</p>
+                    <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
                       개선 포인트, 맞춤 도구 추천, 학습 자료,<br />
                       액션 플랜까지 전체 리포트를 확인하세요.
                     </p>
@@ -498,19 +529,19 @@ function ResultScreen({
                       placeholder="이름"
                       value={gateName}
                       onChange={(e) => setGateName(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                      className="w-full px-5 py-3.5 rounded-xl glass-input text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
                     />
                     <input
                       type="email"
                       placeholder="이메일"
                       value={gateEmail}
                       onChange={(e) => setGateEmail(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] transition-colors"
+                      className="w-full px-5 py-3.5 rounded-xl glass-input text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
                     />
                     <button
                       onClick={handleUnlock}
                       disabled={!gateName.trim() || !gateEmail.trim() || !gateEmail.includes("@")}
-                      className="w-full py-3 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-colors cursor-pointer"
+                      className="w-full py-4 rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[#10b981] hover:shadow-lg hover:shadow-green-500/50 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
                     >
                       🔓 전체 리포트 보기
                     </button>
@@ -525,55 +556,58 @@ function ResultScreen({
         ) : (
           <>
             {/* Improvements */}
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-3">
-              <p className="font-semibold">⚡ 개선 포인트</p>
+            <div className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-6">
+              <p className="font-bold text-lg">⚡ 개선 포인트</p>
               {getImprovements(result).map((s, i) => (
                 <div key={i} className="flex gap-3 text-sm">
-                  <span className="shrink-0 text-orange-400 mt-0.5">→</span>
+                  <span className="shrink-0 text-orange-400 mt-0.5 font-bold">→</span>
                   <p className="text-[var(--color-text-muted)] leading-relaxed">{s}</p>
                 </div>
               ))}
             </div>
 
-            {/* Tool Recommendations */}
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
-              <p className="font-semibold">🛠️ 맞춤 도구 추천</p>
-              <div className="space-y-3">
-                {getToolRecommendations(result).map((tool, i) => (
-                  <div key={i} className="rounded-xl bg-[var(--color-bg)] p-3 text-sm space-y-1">
-                    <p className="font-semibold">{tool.name}</p>
-                    <p className="text-[var(--color-text-muted)]">{tool.reason}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Resource Recommendations */}
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
-              <p className="font-semibold">📚 추천 학습 자료</p>
-              <div className="space-y-3">
-                {getResourceRecommendations(result).map((res, i) => (
-                  <div key={i} className="flex gap-3 text-sm">
-                    <span className="shrink-0 text-lg">{res.type.split(" ")[0]}</span>
-                    <div>
-                      <p className="font-medium">{res.title}</p>
-                      <p className="text-[var(--color-text-muted)] text-xs mt-0.5">{res.reason}</p>
+            {/* Tool + Resource Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Tool Recommendations */}
+              <div className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-1">
+                <p className="font-bold text-lg">🛠️ 맞춤 도구 추천</p>
+                <div className="space-y-3">
+                  {getToolRecommendations(result).map((tool, i) => (
+                    <div key={i} className="glass-input rounded-xl p-4 text-sm space-y-1 hover-lift">
+                      <p className="font-semibold">{tool.name}</p>
+                      <p className="text-[var(--color-text-muted)]">{tool.reason}</p>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              {/* Resource Recommendations */}
+              <div className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-2">
+                <p className="font-bold text-lg">📚 추천 학습 자료</p>
+                <div className="space-y-3">
+                  {getResourceRecommendations(result).map((res, i) => (
+                    <div key={i} className="flex gap-3 text-sm hover-lift glass-input rounded-xl p-3">
+                      <span className="shrink-0 text-lg">{res.type.split(" ")[0]}</span>
+                      <div>
+                        <p className="font-medium">{res.title}</p>
+                        <p className="text-[var(--color-text-muted)] text-xs mt-0.5">{res.reason}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Bottleneck & Actions */}
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
-              <p className="font-semibold">🎯 이번 주 액션 플랜</p>
+            <div className="glass-strong rounded-2xl p-6 space-y-4 opacity-0 animate-fadeInUp stagger-3">
+              <p className="font-bold text-lg">🎯 이번 주 액션 플랜</p>
               <p className="text-xs text-[var(--color-text-muted)]">
                 {bn.emoji} {bn.name} — {bn.description}
               </p>
               <div className="space-y-3">
                 {actions.map((action, i) => (
                   <div key={i} className="flex gap-3 text-sm">
-                    <span className="shrink-0 w-6 h-6 rounded-full bg-[var(--color-primary)]/20 text-[var(--color-primary)] flex items-center justify-center text-xs font-bold">
+                    <span className="shrink-0 w-7 h-7 rounded-full bg-[var(--color-primary)]/20 text-[var(--color-primary)] flex items-center justify-center text-xs font-bold">
                       {i + 1}
                     </span>
                     <p className="text-[var(--color-text-muted)] leading-relaxed">
@@ -585,13 +619,13 @@ function ResultScreen({
             </div>
 
             {/* CTA */}
-            <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 text-center space-y-3">
-              <p className="font-semibold">📬 @productibe 팔로우하고 더 많은 팁 받기</p>
+            <div className="glass-strong rounded-2xl p-6 text-center space-y-4 opacity-0 animate-fadeInUp stagger-4">
+              <p className="font-bold text-lg">📬 @productibe 팔로우하고 더 많은 팁 받기</p>
               <a
                 href="https://www.threads.net/@productibe"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block w-full py-3 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-semibold transition-colors"
+                className="inline-block w-full py-4 rounded-xl bg-gradient-to-r from-[var(--color-primary)] to-[#10b981] text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-lg hover:shadow-green-500/50"
               >
                 Threads에서 팔로우하기
               </a>
@@ -600,22 +634,22 @@ function ResultScreen({
         )}
 
         {/* Share & Restart */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 opacity-0 animate-fadeInUp stagger-6">
           <button
             onClick={handleCopy}
-            className="flex-1 py-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-card)] transition-colors cursor-pointer text-sm"
+            className="flex-1 py-3.5 rounded-xl glass font-semibold hover-lift cursor-pointer"
           >
             {copied ? "✅ 복사됨!" : "📋 결과 공유"}
           </button>
           <button
             onClick={onRestart}
-            className="flex-1 py-3 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-card)] transition-colors cursor-pointer text-sm"
+            className="flex-1 py-3.5 rounded-xl glass font-semibold hover-lift cursor-pointer"
           >
             🔄 다시 하기
           </button>
         </div>
 
-        <p className="text-center text-xs text-[var(--color-text-muted)]">
+        <p className="text-center text-xs text-[var(--color-text-muted)] opacity-0 animate-fadeInUp stagger-6">
           생산적생산자 @productibe
         </p>
       </div>
@@ -631,7 +665,6 @@ export default function Home() {
   const [answerCode, setAnswerCode] = useState("");
   const [result, setResult] = useState<QuizResult | null>(null);
 
-  // Check URL for shared result on load
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("r");
@@ -648,7 +681,6 @@ export default function Home() {
   }, []);
 
   const handleStart = () => {
-    // Clear URL params
     window.history.replaceState({}, "", window.location.pathname);
     setScreen("quiz");
     setCurrentQ(0);
