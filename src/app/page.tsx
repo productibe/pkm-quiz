@@ -11,6 +11,8 @@ import {
 } from "@/data/questions";
 import { calculateResult, type QuizResult } from "@/lib/scoring";
 import RadarChart from "@/components/RadarChart";
+import { getCombinationInfo } from "@/data/combinations";
+import { getStrengths, getImprovements, getToolRecommendations, getResourceRecommendations } from "@/data/insights";
 
 /* ─── URL Encoding ─── */
 function encodeAnswers(answers: Choice[]): string {
@@ -385,61 +387,100 @@ function ResultScreen({
           />
         </div>
 
-        {/* Type Detail Card */}
-        <div
-          className="rounded-2xl border p-5 space-y-4"
-          style={{
-            borderColor: primary.color + "40",
-            background: primary.color + "08",
-          }}
-        >
-          <p className="font-semibold">
-            {primary.emoji} {primary.name} 유형 상세
-          </p>
-          <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
-            {primary.description}
-          </p>
-          <div className="space-y-2 text-sm">
-            <div>
-              <span className="font-semibold text-green-400">💪 강점 — </span>
-              <span className="text-[var(--color-text-muted)]">
-                {primary.strength}
-              </span>
+        {/* Combination Card */}
+        {(() => {
+          const combo = getCombinationInfo(result.primaryType, result.secondaryType);
+          return (
+            <div
+              className="rounded-2xl border p-5 space-y-4"
+              style={{
+                borderColor: primary.color + "40",
+                background: primary.color + "08",
+              }}
+            >
+              <div>
+                <p className="font-semibold text-lg">
+                  {primary.emoji} {combo.title}
+                </p>
+                <p className="text-xs text-[var(--color-text-muted)] mt-1">
+                  {primary.name}{secondary ? ` × ${secondary.name}` : ""} 조합
+                </p>
+              </div>
+              <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">
+                {combo.description}
+              </p>
+              <div className="rounded-xl bg-[var(--color-bg)] p-3 text-sm">
+                <span className="font-semibold text-[var(--color-primary)]">💡 Tip — </span>
+                <span className="text-[var(--color-text-muted)]">{combo.tip}</span>
+              </div>
+              <blockquote
+                className="border-l-2 pl-4 italic text-[var(--color-text-muted)] text-sm"
+                style={{ borderColor: primary.color }}
+              >
+                &ldquo;{primary.quote}&rdquo;
+              </blockquote>
             </div>
-            <div>
-              <span className="font-semibold text-orange-400">⚡ 약점 — </span>
-              <span className="text-[var(--color-text-muted)]">
-                {primary.weakness}
-              </span>
-            </div>
-            <div>
-              <span className="font-semibold text-purple-400">
-                🌱 성장 포인트 —{" "}
-              </span>
-              <span className="text-[var(--color-text-muted)]">
-                {primary.growth}
-              </span>
-            </div>
-            <div>
-              <span className="font-semibold text-blue-400">
-                🛠️ 추천 도구 —{" "}
-              </span>
-              <span className="text-[var(--color-text-muted)]">
-                {primary.tools}
-              </span>
-            </div>
+          );
+        })()}
+
+        {/* Strengths & Improvements */}
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-5">
+          <div className="space-y-3">
+            <p className="font-semibold">💪 강점</p>
+            {getStrengths(result).map((s, i) => (
+              <div key={i} className="flex gap-3 text-sm">
+                <span className="shrink-0 text-green-400 mt-0.5">✓</span>
+                <p className="text-[var(--color-text-muted)] leading-relaxed">{s}</p>
+              </div>
+            ))}
           </div>
-          <blockquote
-            className="border-l-2 pl-4 italic text-[var(--color-text-muted)] text-sm"
-            style={{ borderColor: primary.color }}
-          >
-            &ldquo;{primary.quote}&rdquo;
-          </blockquote>
+          <div className="border-t border-[var(--color-border)]" />
+          <div className="space-y-3">
+            <p className="font-semibold">⚡ 개선 포인트</p>
+            {getImprovements(result).map((s, i) => (
+              <div key={i} className="flex gap-3 text-sm">
+                <span className="shrink-0 text-orange-400 mt-0.5">→</span>
+                <p className="text-[var(--color-text-muted)] leading-relaxed">{s}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tool Recommendations */}
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
+          <p className="font-semibold">🛠️ 맞춤 도구 추천</p>
+          <div className="space-y-3">
+            {getToolRecommendations(result).map((tool, i) => (
+              <div key={i} className="rounded-xl bg-[var(--color-bg)] p-3 text-sm space-y-1">
+                <p className="font-semibold">{tool.name}</p>
+                <p className="text-[var(--color-text-muted)]">{tool.reason}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Resource Recommendations */}
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
+          <p className="font-semibold">📚 추천 학습 자료</p>
+          <div className="space-y-3">
+            {getResourceRecommendations(result).map((res, i) => (
+              <div key={i} className="flex gap-3 text-sm">
+                <span className="shrink-0 text-lg">{res.type.split(" ")[0]}</span>
+                <div>
+                  <p className="font-medium">{res.title}</p>
+                  <p className="text-[var(--color-text-muted)] text-xs mt-0.5">{res.reason}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Bottleneck & Actions */}
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-5 space-y-4">
           <p className="font-semibold">🎯 이번 주 액션 플랜</p>
+          <p className="text-xs text-[var(--color-text-muted)]">
+            {bn.emoji} {bn.name} — {bn.description}
+          </p>
           <div className="space-y-3">
             {actions.map((action, i) => (
               <div key={i} className="flex gap-3 text-sm">
