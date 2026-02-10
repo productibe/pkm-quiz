@@ -18,233 +18,244 @@ export interface Question {
 }
 
 export const questions: Question[] = [
-  // ── 기록 성향 (Q1-Q7) ──
+  // 1. style
   {
     id: 1,
     category: "style",
-    question: "새로운 노트 앱을 깔았다.\n가장 먼저 하는 행동은?",
-    choices: [
-      { text: "폴더/카테고리 구조부터 만든다", type: "architect" },
-      { text: "아무 페이지나 열고 떠오르는 생각을 적는다", type: "gardener" },
-      { text: "사용법 튜토리얼을 먼저 본다", type: "student" },
-      { text: "기존 앱에 있던 자료를 옮기기 시작한다", type: "librarian" },
-    ],
-  },
-  {
-    id: 2,
-    category: "style",
-    question: "유튜브에서 좋은 영상을 발견했다.\n당신의 반응은?",
-    choices: [
-      { text: "주제별 재생목록에 분류한다", type: "architect" },
-      { text: "인상 깊었던 한 문장을 메모한다", type: "gardener" },
-      { text: "영상 내용을 요약 정리한다", type: "student" },
-      { text: "\"나중에 보기\"에 저장한다", type: "librarian" },
-    ],
-  },
-  {
-    id: 3,
-    category: "style",
-    question: "메모가 100개 쌓였다.\n가장 먼저 드는 생각은?",
-    choices: [
-      { text: "태그를 다시 정리해야겠다", type: "architect" },
-      { text: "어떤 메모끼리 연결될까?", type: "gardener" },
-      { text: "다시 읽으면서 핵심만 추려야지", type: "student" },
-      { text: "잘 모아뒀으니 필요할 때 검색하면 돼", type: "librarian" },
-    ],
-  },
-  {
-    id: 4,
-    category: "style",
-    question: "친구가 \"너 그 자료 어디서 봤어?\"라고 물었다.\n당신은?",
-    choices: [
-      { text: "정확한 폴더 경로를 알려준다", type: "architect" },
-      { text: "이것저것 연결하다 나온 건데… 어디더라", type: "gardener" },
-      { text: "직접 정리한 요약 노트를 공유한다", type: "student" },
-      { text: "즐겨찾기에서 바로 꺼내준다", type: "librarian" },
-    ],
-  },
-  {
-    id: 5,
-    category: "style",
-    question: "당신의 메모장을 남이 본다면\n어떤 반응일까?",
-    choices: [
-      { text: "\"와, 체계적이다\"", type: "architect" },
-      { text: "\"이게 다 연결이 된다고?\"", type: "gardener" },
-      { text: "\"독서 노트가 진짜 많다\"", type: "student" },
-      { text: "\"링크 모음집이네\"", type: "librarian" },
-    ],
-  },
-  {
-    id: 6,
-    category: "style",
-    question: "프로젝트를 시작할 때\n당신의 스타일은?",
-    choices: [
-      { text: "전체 구조와 단계를 먼저 설계한다", type: "architect" },
-      { text: "관련 아이디어를 자유롭게 브레인덤프한다", type: "gardener" },
-      { text: "비슷한 사례와 레퍼런스를 먼저 공부한다", type: "student" },
-      { text: "쓸 만한 자료와 템플릿을 먼저 모은다", type: "librarian" },
-    ],
-  },
-  {
-    id: 7,
-    category: "style",
     question: "가장 공감 가는 문장은?",
     choices: [
-      { text: "체계가 없으면 불안하다", type: "architect" },
-      { text: "연결되는 순간이 가장 짜릿하다", type: "gardener" },
-      { text: "이해하지 못하면 넘어갈 수 없다", type: "student" },
       { text: "좋은 건 일단 저장하고 본다", type: "librarian" },
+      { text: "체계가 없으면 불안하다", type: "architect" },
+      { text: "이해하지 못하면 넘어갈 수 없다", type: "student" },
+      { text: "연결되는 순간이 가장 짜릿하다", type: "gardener" },
     ],
   },
-
-  // ── PKM 성숙도 (Q8-Q11) ──
+  // 2. maturity
   {
-    id: 8,
-    category: "maturity",
-    question: "현재 메모/기록 습관에\n가장 가까운 것은?",
-    choices: [
-      { text: "거의 적지 않는다. 머릿속으로 해결한다", score: 0 },
-      { text: "가끔 적지만 어디에 적었는지 잊어버린다", score: 1 },
-      { text: "꾸준히 적고, 나만의 장소가 있다", score: 2 },
-      { text: "적은 걸 정기적으로 다시 보고 활용한다", score: 3 },
-    ],
-  },
-  {
-    id: 9,
+    id: 2,
     category: "maturity",
     question: "한 달 전에 적은 메모를\n다시 찾아본 적이 있는가?",
     choices: [
-      { text: "메모를 안 적어서 해당 없음", score: 0 },
-      { text: "적긴 했는데 찾을 수 없었다", score: 1 },
       { text: "찾아서 읽어봤다", score: 2 },
+      { text: "메모를 안 적어서 해당 없음", score: 0 },
       { text: "찾아서 새로운 작업에 활용했다", score: 3 },
+      { text: "적긴 했는데 찾을 수 없었다", score: 1 },
     ],
   },
+  // 3. ai
   {
-    id: 10,
-    category: "maturity",
-    question: "기록을 위한 도구나 시스템이\n있는가?",
-    choices: [
-      { text: "없다. 카톡 나에게 보내기 정도?", score: 0 },
-      { text: "앱은 있지만 체계 없이 쓰고 있다", score: 1 },
-      { text: "나름의 분류 체계를 만들어 쓰고 있다", score: 2 },
-      { text: "도구 + 루틴 + 정리 주기까지 정착됐다", score: 3 },
-    ],
-  },
-  {
-    id: 11,
-    category: "maturity",
-    question: "기록한 내용이 실제 결과물로\n이어진 적이 있는가?",
-    choices: [
-      { text: "없다", score: 0 },
-      { text: "가끔, 우연히", score: 1 },
-      { text: "종종, 의도적으로", score: 2 },
-      { text: "거의 항상. 기록이 곧 초안이 된다", score: 3 },
-    ],
-  },
-
-  // ── AI 활용도 (Q12-Q15) ──
-  {
-    id: 12,
-    category: "ai",
-    question: "AI 도구(ChatGPT, Claude 등)를\n얼마나 자주 쓰는가?",
-    choices: [
-      { text: "안 쓴다 / 잘 모른다", score: 0 },
-      { text: "가끔 궁금한 것을 물어본다", score: 1 },
-      { text: "업무나 학습에 주 3회 이상 활용한다", score: 2 },
-      { text: "매일 쓴다. 없으면 불편하다", score: 3 },
-    ],
-  },
-  {
-    id: 13,
+    id: 3,
     category: "ai",
     question: "AI에게 질문할 때 맥락을\n함께 주는 편인가?",
     choices: [
       { text: "AI를 안 써서 해당 없음", score: 0 },
       { text: "그냥 단순하게 질문한다", score: 1 },
-      { text: "가끔 배경 설명을 덧붙인다", score: 2 },
       { text: "항상 역할, 맥락, 출력 형식까지 지정한다", score: 3 },
+      { text: "가끔 배경 설명을 덧붙인다", score: 2 },
     ],
   },
+  // 4. style
   {
-    id: 14,
-    category: "ai",
-    question: "AI의 결과물을\n어떻게 처리하는가?",
+    id: 4,
+    category: "style",
+    question: "메모가 100개 쌓였다.\n가장 먼저 드는 생각은?",
     choices: [
-      { text: "AI를 안 써서 해당 없음", score: 0 },
-      { text: "그대로 복사해서 쓴다", score: 1 },
-      { text: "수정/보완해서 내 것으로 만든다", score: 2 },
-      { text: "내 기록 시스템에 저장하고 연결한다", score: 3 },
+      { text: "어떤 메모끼리 연결될까?", type: "gardener" },
+      { text: "잘 모아뒀으니 필요할 때 검색하면 돼", type: "librarian" },
+      { text: "다시 읽으면서 핵심만 추려야지", type: "student" },
+      { text: "태그를 다시 정리해야겠다", type: "architect" },
     ],
   },
+  // 5. output
   {
-    id: 15,
-    category: "ai",
-    question: "AI와 자신의 기록을\n연결해서 써본 적이 있는가?",
-    choices: [
-      { text: "생각해본 적 없다", score: 0 },
-      { text: "해보고 싶지만 방법을 모른다", score: 1 },
-      { text: "가끔 메모를 복사해서 AI에게 넣는다", score: 2 },
-      { text: "자동화하거나 시스템으로 연결해뒀다", score: 3 },
-    ],
-  },
-
-  // ── 아웃풋 성향 (Q16-Q18) ──
-  {
-    id: 16,
+    id: 5,
     category: "output",
     question: "기록한 것을\n주로 어디에 활용하는가?",
     choices: [
-      { text: "활용하지 않는다. 적는 것 자체가 목적", outputType: "inner" },
       { text: "블로그, SNS, 뉴스레터 등 콘텐츠로 발행", outputType: "sharer" },
-      { text: "업무 보고서, 프로젝트 기획 등 실무에 활용", outputType: "practical" },
       { text: "상황에 따라 다르다", outputType: "hybrid" },
+      { text: "활용하지 않는다. 적는 것 자체가 목적", outputType: "inner" },
+      { text: "업무 보고서, 프로젝트 기획 등 실무에 활용", outputType: "practical" },
     ],
   },
+  // 6. style
   {
-    id: 17,
-    category: "output",
-    question: "\"기록의 가치\"라고 하면\n가장 먼저 떠오르는 것은?",
+    id: 6,
+    category: "style",
+    question: "새로운 노트 앱을 깔았다.\n가장 먼저 하는 행동은?",
     choices: [
-      { text: "생각을 정리하고 마음이 편해지는 것", outputType: "inner" },
-      { text: "다른 사람에게 도움이 되는 콘텐츠가 되는 것", outputType: "sharer" },
-      { text: "더 나은 의사결정과 실행이 가능해지는 것", outputType: "practical" },
-      { text: "위 모두 해당한다", outputType: "hybrid" },
+      { text: "기존 앱에 있던 자료를 옮기기 시작한다", type: "librarian" },
+      { text: "사용법 튜토리얼을 먼저 본다", type: "student" },
+      { text: "폴더/카테고리 구조부터 만든다", type: "architect" },
+      { text: "아무 페이지나 열고 떠오르는 생각을 적는다", type: "gardener" },
     ],
   },
+  // 7. maturity
   {
-    id: 18,
-    category: "output",
-    question: "이상적인 기록 시스템을 갖추면\n가장 하고 싶은 것은?",
+    id: 7,
+    category: "maturity",
+    question: "기록을 위한 도구나 시스템이\n있는가?",
     choices: [
-      { text: "매일 짧은 회고/일기를 쓰는 것", outputType: "inner" },
-      { text: "일주일에 한 편씩 글을 발행하는 것", outputType: "sharer" },
-      { text: "프로젝트마다 재사용 가능한 자료를 만드는 것", outputType: "practical" },
-      { text: "전부 다 하고 싶다", outputType: "hybrid" },
+      { text: "앱은 있지만 체계 없이 쓰고 있다", score: 1 },
+      { text: "도구 + 루틴 + 정리 주기까지 정착됐다", score: 3 },
+      { text: "없다. 카톡 나에게 보내기 정도?", score: 0 },
+      { text: "나름의 분류 체계를 만들어 쓰고 있다", score: 2 },
     ],
   },
-
-  // ── 기록 병목 (Q19-Q20) ──
+  // 8. bottleneck
   {
-    id: 19,
+    id: 8,
     category: "bottleneck",
     question: "기록에서 가장 어렵다고\n느끼는 단계는?",
     choices: [
-      { text: "뭘 적어야 할지 모르겠다", bottleneck: "start" },
-      { text: "시작은 하지만 꾸준히 못 한다", bottleneck: "sustain" },
-      { text: "쌓이기만 하고 정리를 못 하겠다", bottleneck: "organize" },
       { text: "정리는 하는데 써먹지를 못 하겠다", bottleneck: "apply" },
+      { text: "시작은 하지만 꾸준히 못 한다", bottleneck: "sustain" },
+      { text: "뭘 적어야 할지 모르겠다", bottleneck: "start" },
+      { text: "쌓이기만 하고 정리를 못 하겠다", bottleneck: "organize" },
     ],
   },
+  // 9. ai
   {
-    id: 20,
+    id: 9,
+    category: "ai",
+    question: "AI의 결과물을\n어떻게 처리하는가?",
+    choices: [
+      { text: "내 기록 시스템에 저장하고 연결한다", score: 3 },
+      { text: "AI를 안 써서 해당 없음", score: 0 },
+      { text: "수정/보완해서 내 것으로 만든다", score: 2 },
+      { text: "그대로 복사해서 쓴다", score: 1 },
+    ],
+  },
+  // 10. style
+  {
+    id: 10,
+    category: "style",
+    question: "친구가 \"너 그 자료 어디서 봤어?\"라고 물었다.\n당신은?",
+    choices: [
+      { text: "이것저것 연결하다 나온 건데… 어디더라", type: "gardener" },
+      { text: "직접 정리한 요약 노트를 공유한다", type: "student" },
+      { text: "즐겨찾기에서 바로 꺼내준다", type: "librarian" },
+      { text: "정확한 폴더 경로를 알려준다", type: "architect" },
+    ],
+  },
+  // 11. output
+  {
+    id: 11,
+    category: "output",
+    question: "이상적인 기록 시스템을 갖추면\n가장 하고 싶은 것은?",
+    choices: [
+      { text: "전부 다 하고 싶다", outputType: "hybrid" },
+      { text: "매일 짧은 회고/일기를 쓰는 것", outputType: "inner" },
+      { text: "프로젝트마다 재사용 가능한 자료를 만드는 것", outputType: "practical" },
+      { text: "일주일에 한 편씩 글을 발행하는 것", outputType: "sharer" },
+    ],
+  },
+  // 12. maturity
+  {
+    id: 12,
+    category: "maturity",
+    question: "기록한 내용이 실제 결과물로\n이어진 적이 있는가?",
+    choices: [
+      { text: "가끔, 우연히", score: 1 },
+      { text: "종종, 의도적으로", score: 2 },
+      { text: "거의 항상. 기록이 곧 초안이 된다", score: 3 },
+      { text: "없다", score: 0 },
+    ],
+  },
+  // 13. ai
+  {
+    id: 13,
+    category: "ai",
+    question: "AI 도구(ChatGPT, Claude 등)를\n얼마나 자주 쓰는가?",
+    choices: [
+      { text: "매일 쓴다. 없으면 불편하다", score: 3 },
+      { text: "가끔 궁금한 것을 물어본다", score: 1 },
+      { text: "안 쓴다 / 잘 모른다", score: 0 },
+      { text: "업무나 학습에 주 3회 이상 활용한다", score: 2 },
+    ],
+  },
+  // 14. style
+  {
+    id: 14,
+    category: "style",
+    question: "당신의 메모장을 남이 본다면\n어떤 반응일까?",
+    choices: [
+      { text: "\"링크 모음집이네\"", type: "librarian" },
+      { text: "\"독서 노트가 진짜 많다\"", type: "student" },
+      { text: "\"와, 체계적이다\"", type: "architect" },
+      { text: "\"이게 다 연결이 된다고?\"", type: "gardener" },
+    ],
+  },
+  // 15. bottleneck
+  {
+    id: 15,
     category: "bottleneck",
     question: "기록을 더 잘하기 위해\n가장 필요한 것은?",
     choices: [
-      { text: "\"뭘 적어야 하는지\" 알려주는 가이드", bottleneck: "start" },
-      { text: "매일 자동으로 알림을 주는 루틴", bottleneck: "sustain" },
       { text: "메모를 분류하고 연결하는 방법", bottleneck: "organize" },
+      { text: "\"뭘 적어야 하는지\" 알려주는 가이드", bottleneck: "start" },
       { text: "기록을 아웃풋으로 전환하는 프로세스", bottleneck: "apply" },
+      { text: "매일 자동으로 알림을 주는 루틴", bottleneck: "sustain" },
+    ],
+  },
+  // 16. style
+  {
+    id: 16,
+    category: "style",
+    question: "프로젝트를 시작할 때\n당신의 스타일은?",
+    choices: [
+      { text: "관련 아이디어를 자유롭게 브레인덤프한다", type: "gardener" },
+      { text: "전체 구조와 단계를 먼저 설계한다", type: "architect" },
+      { text: "쓸 만한 자료와 템플릿을 먼저 모은다", type: "librarian" },
+      { text: "비슷한 사례와 레퍼런스를 먼저 공부한다", type: "student" },
+    ],
+  },
+  // 17. maturity
+  {
+    id: 17,
+    category: "maturity",
+    question: "현재 메모/기록 습관에\n가장 가까운 것은?",
+    choices: [
+      { text: "적은 걸 정기적으로 다시 보고 활용한다", score: 3 },
+      { text: "거의 적지 않는다. 머릿속으로 해결한다", score: 0 },
+      { text: "꾸준히 적고, 나만의 장소가 있다", score: 2 },
+      { text: "가끔 적지만 어디에 적었는지 잊어버린다", score: 1 },
+    ],
+  },
+  // 18. ai
+  {
+    id: 18,
+    category: "ai",
+    question: "AI와 자신의 기록을\n연결해서 써본 적이 있는가?",
+    choices: [
+      { text: "해보고 싶지만 방법을 모른다", score: 1 },
+      { text: "생각해본 적 없다", score: 0 },
+      { text: "자동화하거나 시스템으로 연결해뒀다", score: 3 },
+      { text: "가끔 메모를 복사해서 AI에게 넣는다", score: 2 },
+    ],
+  },
+  // 19. output
+  {
+    id: 19,
+    category: "output",
+    question: "\"기록의 가치\"라고 하면\n가장 먼저 떠오르는 것은?",
+    choices: [
+      { text: "위 모두 해당한다", outputType: "hybrid" },
+      { text: "생각을 정리하고 마음이 편해지는 것", outputType: "inner" },
+      { text: "더 나은 의사결정과 실행이 가능해지는 것", outputType: "practical" },
+      { text: "다른 사람에게 도움이 되는 콘텐츠가 되는 것", outputType: "sharer" },
+    ],
+  },
+  // 20. style
+  {
+    id: 20,
+    category: "style",
+    question: "유튜브에서 좋은 영상을 발견했다.\n당신의 반응은?",
+    choices: [
+      { text: "주제별 재생목록에 분류한다", type: "architect" },
+      { text: "\"나중에 보기\"에 저장한다", type: "librarian" },
+      { text: "영상 내용을 요약 정리한다", type: "student" },
+      { text: "인상 깊었던 한 문장을 메모한다", type: "gardener" },
     ],
   },
 ];
