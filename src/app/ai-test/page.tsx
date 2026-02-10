@@ -93,12 +93,7 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
 
         <button
           onClick={onStart}
-          className="w-full py-4 rounded-2xl text-white font-bold text-lg cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform stagger-6 opacity-0 animate-fadeInUp shadow-lg"
-          style={{
-            background: 'linear-gradient(90deg, #06b6d4 0%, #3b82f6 50%, #06b6d4 100%)',
-            backgroundSize: '200% 100%',
-            animation: 'shimmer 2s linear infinite',
-          }}
+          className="w-full py-4 rounded-2xl text-white font-bold text-lg cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-lg btn-shimmer-ai"
         >
           진단 시작하기
         </button>

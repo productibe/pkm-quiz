@@ -89,7 +89,7 @@ function IntroScreen({ onStart }: { onStart: () => void }) {
 
         <button
           onClick={onStart}
-          className="w-full py-4 rounded-2xl animate-shimmer text-white font-bold text-lg cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform stagger-6 opacity-0 animate-fadeInUp shadow-lg"
+          className="w-full py-4 rounded-2xl btn-shimmer text-white font-bold text-lg cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-transform shadow-lg"
         >
           진단 시작하기
         </button>
